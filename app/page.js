@@ -1,95 +1,144 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+"use client";
+import React, { useState, useEffect } from "react";
+import "bootstrap/dist/css/bootstrap.min.css";
+import "../public/style.css";
+import {
+  Table,
+  Card,
+  Dropdown,
+  Modal,
+  InputGroup,
+  Form,
+  Button,
+} from "react-bootstrap";
+import Swal from "sweetalert2";
 
 export default function Home() {
-  return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>app/page.js</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
+  const [showInputUserModal, setShowInputUserModal] = useState(false);
+  const [user, setUser] = useState();
 
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
+  const handleShowInputUserModal = async () => {
+    const { value: email } = await Swal.fire({
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      title: "Input email address",
+      input: "email",
+      inputLabel: "Your email address",
+      inputPlaceholder: "Enter your email address",
+    });
+    if (email) {
+      Swal.fire(`Entered email: ${email}`);
+    }
+  };
+  const handleCloseInputUserModal = () => setShowInputUserModal(false);
+
+  useEffect(() => {
+    const getUser = sessionStorage.getItem("user");
+    if (getUser === null) {
+      handleShowInputUserModal();
+    }
+  }, []);
+
+  const getUser = async () => {};
+
+  return (
+    <div className="wonderPetsContainer">
+      <div className="header">
+        <im
+          src="/images/image.svg"
+          width={120}
+          height={120}
+          alt="Wonder Pets Logo"
         />
       </div>
+      <div className="mainContent">
+        <div className="mb-3 ms-auto">
+          <div className="row">
+            <div className="col-auto">
+              <Dropdown>
+                <Dropdown.Toggle variant="success" id="dropdown-basic">
+                  Sort By
+                </Dropdown.Toggle>
+              </Dropdown>
+            </div>
+            <div className="col-auto">
+              <button
+                className="btn btn-primary"
+                onClick={handleShowInputUserModal}
+              >
+                CREATE NEW PET
+              </button>
+            </div>
+          </div>
+        </div>
 
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore starter templates for Next.js.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
+        <Card style={{ overflowY: "scroll", maxHeight: "25rem" }}>
+          <Card.Body>
+            <Table responsive>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  {Array.from({ length: 12 }).map((_, index) => (
+                    <th key={index}>Table heading</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>1</td>
+                  {Array.from({ length: 12 }).map((_, index) => (
+                    <td key={index}>Table cell {index}</td>
+                  ))}
+                </tr>
+                <tr>
+                  <td>2</td>
+                  {Array.from({ length: 12 }).map((_, index) => (
+                    <td key={index}>Table cell {index}</td>
+                  ))}
+                </tr>
+                <tr>
+                  <td>3</td>
+                  {Array.from({ length: 12 }).map((_, index) => (
+                    <td key={index}>Table cell {index}</td>
+                  ))}
+                </tr>
+              </tbody>
+            </Table>
+          </Card.Body>
+        </Card>
       </div>
-    </main>
+
+      {/* <Modal
+        show={showInputUserModal}
+        onHide={handleCloseInputUserModal}
+        backdrop="static"
+        keyboard={false}
+        centered={true}
+      >
+        <Modal.Header>
+          <Modal.Title className="w-100 text-center">
+            USING THE APP AS:
+          </Modal.Title>
+        </Modal.Header>
+
+        <Modal.Body>
+          <InputGroup className="mb-3">
+            <InputGroup.Text id="basic-addon1">@</InputGroup.Text>
+            <Form.Control
+              placeholder="Username"
+              aria-label="Username"
+              aria-describedby="basic-addon1"
+              required={true}
+            />
+          </InputGroup>
+
+          <div className="d-flex flex-column align-items-center">
+            <Button type="submit">Start Using Now</Button>
+            <span className="my-2">----Or----</span>
+            <Button>Create New User</Button>
+          </div>
+        </Modal.Body>
+      </Modal> */}
+    </div>
   );
 }
