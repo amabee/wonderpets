@@ -151,22 +151,11 @@ export default function Home() {
               <tbody>
                 <tr>
                   <td>1</td>
-                  {Array.from({ length: 12 }).map((_, index) => (
+                  {Array.from({ length: 4 }).map((_, index) => (
                     <td key={index}>Table cell {index + 1}</td>
                   ))}
                 </tr>
-                <tr>
-                  <td>2</td>
-                  {Array.from({ length: 12 }).map((_, index) => (
-                    <td key={index}>Table cell {index + 1}</td>
-                  ))}
-                </tr>
-                <tr>
-                  <td>3</td>
-                  {Array.from({ length: 12 }).map((_, index) => (
-                    <td key={index}>Table cell {index + 1}</td>
-                  ))}
-                </tr>
+               
               </tbody>
             </Table>
           </Card.Body>
