@@ -10,10 +10,6 @@ const Profile = ({ params }) => {
   const [petCount, setPetCount] = useState(0);
   const [image, setImage] = useState(null);
 
-  const imageUrl = "https://pic.re/image";
-
-
-
   const getUser = async () => {
     try {
       const res = await axios.get(ENDPOINT, {
@@ -27,6 +23,7 @@ const Profile = ({ params }) => {
         if (res.data.success) {
           setThisUser(res.data.success.user);
           setPetCount(res.data.success.pet_count);
+          console.log(res.data);
         } else {
           swal("Fetching User Error", JSON.stringify(res.data), "error");
         }
@@ -46,7 +43,11 @@ const Profile = ({ params }) => {
   return (
     <div class="card">
       <div class="cover-photo">
-        <img src="https://pic.re/image" style={{objectFit:"cover"}} class="profile" />
+        <img
+          src="https://robohash.org/anime"
+          style={{ objectFit: "cover" }}
+          class="profile"
+        />
       </div>
       <div>
         <h3 className="profile-name">{thisUser.Name}</h3>
