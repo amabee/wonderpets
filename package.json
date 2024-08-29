@@ -9,8 +9,13 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "anime-images-api": "^2.0.0",
     "axios": "^1.7.5",
     "bootstrap": "^5.3.3",
+    "dgram": "^1.0.1",
+    "dns": "^0.2.2",
+    "nekosapi": "^0.6.3",
+    "net": "^1.0.2",
     "next": "14.2.6",
     "react": "^18",
     "react-bootstrap": "^2.10.4",

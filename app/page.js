@@ -17,6 +17,7 @@ import { ENDPOINT } from "@/globals/endpoints";
 import { swal } from "@/globals/swal";
 import "react-datepicker/dist/react-datepicker.css";
 import DatePicker from "react-datepicker";
+import "../public/DD-style.css";
 
 export default function Home() {
   const [showInputUserModal, setShowInputUserModal] = useState(false);
@@ -30,6 +31,12 @@ export default function Home() {
   const [petBreed, setPetBreed] = useState("");
   const [petSpecie, setPetSpecie] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState(null);
+  const [userName, setUserName] = useState("");
+  const [cdetails, setcdetails] = useState("");
+  const [address, setaddress] = useState("");
+
+  const [showSpeciesMenu, setShowSpeciesMenu] = useState(false);
+  const [showBreedMenu, setShowBreedMenu] = useState(false);
 
   const handleShowInputUserModal = async () => {
     const { value: inputName } = await Swal.fire({
@@ -46,7 +53,8 @@ export default function Home() {
         document
           .getElementById("createNewUserButton")
           .addEventListener("click", () => {
-            Swal.fire("Creating a new user...");
+            handleCreateUser();
+            handleCloseInputUserModal();
           });
       },
       preConfirm: async (inputName) => {
@@ -59,8 +67,31 @@ export default function Home() {
         setName(inputName);
         await getUser(inputName);
         Swal.hideLoading();
+        window.location.reload();
       },
     });
+  };
+
+  const handleCreateUser = async () => {
+    const { value: formValues } = await Swal.fire({
+      title: "Enter your details",
+      html:
+        '<input id="swal-input1" class="swal2-input" placeholder="Name">' +
+        '<input id="swal-input2" class="swal2-input" placeholder="Contact Details">' +
+        '<input id="swal-input3" class="swal2-input" placeholder="Address">',
+      focusConfirm: false,
+      preConfirm: () => {
+        return [
+          document.getElementById("swal-input1").value,
+          document.getElementById("swal-input2").value,
+          document.getElementById("swal-input3").value,
+        ];
+      },
+    });
+
+    if (formValues) {
+      addUser(formValues[0], formValues[1], formValues[2]);
+    }
   };
 
   const handleCloseInputUserModal = () => setShowInputUserModal(false);
@@ -172,24 +203,85 @@ export default function Home() {
     }
   };
 
-  const addUser = async(userName) =>{
-    
-  }
+  const addUser = async (userName, cdetails, address) => {
+    const formData = new FormData();
+    formData.append("operation", "createUser");
+    formData.append(
+      "json",
+      JSON.stringify({
+        name: userName,
+        cdetails: cdetails,
+        address: address,
+      })
+    );
 
-  const getPets = async (type, typeName) => {
     try {
-      const res = await axios.get(ENDPOINT, {
-        params: {
-          operation: "getPets",
-          json: type ? JSON.stringify({ type: typeName }) : "",
-        },
+      const res = await axios({
+        url: ENDPOINT,
+        method: "POST",
+        data: formData,
       });
 
       if (res.status === 200) {
         if (res.data.success) {
-          setPets(res.data.success);
+          swal("Success", JSON.stringify(res.data.success), "success", () => {
+            handleShowInputUserModal();
+          });
         } else {
-          swal("Fetching Pets Error", JSON.stringify(res.data), "error");
+          swal("Data Error", JSON.stringify(res.data), "error");
+        }
+      } else {
+        swal("Status Error", `${res.statusText}`, "error");
+      }
+    } catch (error) {
+      swal("Exception Error", error, "error");
+    }
+  };
+
+  const getPets = async (type, typeName) => {
+    try {
+      let jsonData;
+
+      switch (type) {
+        case "breed":
+          jsonData = JSON.stringify({ breed: typeName });
+          break;
+
+        case "specie":
+          jsonData = JSON.stringify({ specie: typeName });
+          break;
+
+        default:
+          jsonData = "";
+          break;
+      }
+
+      const res = await axios.get(ENDPOINT, {
+        params: {
+          operation: "getPets",
+          json: jsonData,
+        },
+      });
+
+      axios.interceptors.request.use(
+        (config) => {
+          console.log("Request URL:", config.url);
+          console.log("Request Params:", config.params);
+          return config;
+        },
+        (error) => {
+          return Promise.reject(error);
+        }
+      );
+
+      if (res.status === 200) {
+        if (res.data.success) {
+          setPets(res.data.success);
+          console.log(res.data);
+        } else {
+          setPets(res.data.error);
+          console.log(res.data);
+          swal("Fetching Pets Error", JSON.stringify(res.data.error), "error");
         }
       } else {
         swal("Status Error", res.statusText, "error");
@@ -343,6 +435,14 @@ export default function Home() {
     }
   };
 
+  const handleBreedFilter = (breedName) => {
+    getPets("breed", breedName);
+  };
+
+  const handleSpeciesFilter = (species) => {
+    getPets("specie", species);
+  };
+
   return (
     <div className="wonderPetsContainer">
       <div className="header text-center p-4">
@@ -367,9 +467,46 @@ export default function Home() {
                   Sort By:
                 </Dropdown.Toggle>
                 <Dropdown.Menu>
-                  <Dropdown.Item>Species</Dropdown.Item>
-                  <Dropdown.Item>Breed</Dropdown.Item>
-                  <Dropdown.Item>Owner</Dropdown.Item>
+                  <Dropdown.Item
+                    onMouseEnter={() => setShowSpeciesMenu(true)}
+                    onMouseLeave={() => setShowSpeciesMenu(false)}
+                  >
+                    SPECIES
+                    {showSpeciesMenu && (
+                      <Dropdown.Menu show className="nested-dropdown">
+                        {species.map((specie, index) => (
+                          <Dropdown.Item
+                            key={index}
+                            onClick={() =>
+                              handleSpeciesFilter(specie.SpeciesName)
+                            }
+                          >
+                            {specie.SpeciesName}
+                          </Dropdown.Item>
+                        ))}
+                      </Dropdown.Menu>
+                    )}
+                  </Dropdown.Item>
+
+                  <Dropdown.Item
+                    onMouseEnter={() => setShowBreedMenu(true)}
+                    onMouseLeave={() => setShowBreedMenu(false)}
+                  >
+                    BREED
+                    {showBreedMenu && (
+                      <Dropdown.Menu show className="nested-dropdown">
+                        {breeds.map((breed, index) => (
+                          <Dropdown.Item
+                            key={index}
+                            onClick={() => handleBreedFilter(breed.BreedName)}
+                          >
+                            {breed.BreedName}
+                          </Dropdown.Item>
+                        ))}
+                      </Dropdown.Menu>
+                    )}
+                  </Dropdown.Item>
+                  <Dropdown.Item>OWNER</Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown>
             </div>
@@ -400,17 +537,23 @@ export default function Home() {
                 </tr>
               </thead>
               <tbody>
-                {pets.map((pet, index) => (
-                  <tr key={index}>
-                    <td>{pet.PetID}</td>
-                    <td>{pet.Name}</td>
-                    <td>{pet.SpeciesName}</td>
-                    <td>{pet.BreedName}</td>
-                    <td>
-                      <a href="#">{pet.OwnerName}</a>
-                    </td>
+                {Array.isArray(pets) && pets.length > 0 ? (
+                  pets.map((pet) => (
+                    <tr key={pet.PetID}>
+                      <td>{pet.PetID}</td>
+                      <td>{pet.Name}</td>
+                      <td>{pet.SpeciesName}</td>
+                      <td>{pet.BreedName}</td>
+                      <td>
+                        <a href={"/profile/" + pet.OwnerName}>{pet.OwnerName}</a>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="5">No pets available</td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </Table>
           </Card.Body>
